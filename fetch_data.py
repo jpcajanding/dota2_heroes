@@ -30,16 +30,16 @@ for team in teams['team_id']:
 matches.drop_duplicates(keep='first', inplace=True)
 
 print('Saving {} match ids.'.format(len(matches)))
-matches.to_pickle('data\matches.pkl')
-# matches = pd.read_pickle('data\matches.pkl')
-used_columns = ['match_id', 'radiant_win', 'picks_bans']
+# matches.to_pickle('data\matches.pkl')
+matches = pd.read_pickle('data\matches.pkl')
+used_columns = ['match_id', 'radiant_win', 'patch', 'picks_bans']
 
 pro_matches = pd.DataFrame([])
 pro_matches_count = 0
 err = 0
 
 for match in matches:
-    if pro_matches_count <= 2149:
+    if pro_matches_count <= 109:
         pro_matches_count = pro_matches_count + 1
     else:
         print('requesting match {}'.format(match), flush=True)
@@ -50,9 +50,9 @@ for match in matches:
             pro_match = pro_match[used_columns]
             pro_matches = pro_matches.append(pro_match)
             pro_matches_count = pro_matches_count + 1
-            if pro_matches_count % 50 == 0:
+            if pro_matches_count % 10 == 0:
                 print('Saving {} matches...'.format(pro_matches_count))
-                pro_matches.to_pickle('data\pro_matches_heroes_2150_start.pkl')
+                pro_matches.to_pickle('data_new\pro_matches_heroes_110_start.pkl')
         except:
             err = err + 1
 
@@ -62,4 +62,4 @@ for match in matches:
 print('Total professional matches are {0}. Errors are {1}.'.format(pro_matches_count, err))
 
 print('Saving data for {} matches.'.format(pro_matches_count))
-pro_matches.to_pickle('data\pro_matches_heroes.pkl')
+pro_matches.to_pickle('data_new\pro_matches_heroes.pkl')
