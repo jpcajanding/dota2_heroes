@@ -1,4 +1,5 @@
 import pandas as pd
+import requests
 
 pro_matches_heroes = pd.read_pickle('data\pro_matches_heroes.pkl')
 
@@ -33,7 +34,7 @@ def parse_heroes(matches, radiant_win, patch):
         final_hero = final_hero.join(picks)
 
         heroes = heroes.append(final_hero, ignore_index=True)
-    
+
     return heroes
 
 
@@ -42,3 +43,25 @@ patch46_heroes = parse_heroes(pro_matches_heroes_patch46[pro_matches_heroes_patc
 
 patch45_heroes.to_pickle('data\pro_heroes_patch_45.pkl')
 patch46_heroes.to_pickle('data\pro_heroes_patch_46.pkl')
+
+heroes = requests.get('https://api.opendota.com/api/heroes').json()
+heroes = pd.DataFrame.from_dict(heroes)
+
+
+def parse_hero_names(patch_heroes, heroes):
+    hero_names = pd.DataFrame([])
+
+    for column_name in patch_heroes.columns:
+        if ('win' in column_name or 'loss' in column_name):
+            hero_names[column_name + '_name'] = patch_heroes.merge(heroes, how='left', left_on=column_name, right_on='id')['localized_name']
+
+    hero_names.drop(columns='radiant_win_name', inplace=True)
+
+    return hero_names
+
+
+hero_names_45 = parse_hero_names(patch45_heroes, heroes)
+hero_names_46 = parse_hero_names(patch46_heroes, heroes)
+
+hero_names_45.to_csv('data\hero_names_45.csv')
+hero_names_46.to_csv('data\hero_names_46.csv')
